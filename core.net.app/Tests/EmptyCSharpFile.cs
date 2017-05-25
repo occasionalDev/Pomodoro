@@ -5,6 +5,10 @@ namespace PomodoroLib
 {
     public class someTests
     {
+        /// <summary>
+        /// This test is currently not picked up in the Visual Studio for Mac
+        /// (version 7) Test Runner.
+        /// </summary>
         [Fact]
         public void AnotherTest()
         {
