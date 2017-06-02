@@ -10,6 +10,8 @@ namespace PomodoroTests
         bool _timerHasTicked;
         bool _phaseHasChanged;
 
+        const int _testInterval = 10;
+
         public TimerBehaviour()
         {
             _timerHasTicked = false;
@@ -17,7 +19,7 @@ namespace PomodoroTests
         }
 
 		[Fact]
-		public void Phase_Defaults_To_Work()
+		public void Constructor_Phase_Defaults_To_Work()
 		{
 			var pom = new PomodoroTimer(0, 0);
             Assert.Equal(PomodoroTimer.PomodoroPhaseEnum.Work, 
@@ -25,60 +27,68 @@ namespace PomodoroTests
 		}
 
 		[Fact]
+		public void Constructor_Interval_Defaults_To_1000()
+		{
+			var pomTimer = new PomodoroTimer(0, 0);
+			Assert.Equal(1000, pomTimer.Interval);
+		}
+
+		[Fact]
 		public void Phase_Switches_Work_To_Break()
 		{
-            var workTime = 2000;
-			var breakTime = 2000;
+            var workTime = 20;
+			var breakTime = 20;
 
-			var pom = new PomodoroTimer(workTime, breakTime);
+			var pomTimer = new PomodoroTimer(workTime, breakTime, _testInterval);
 
-            pom.Start();
-            Thread.Sleep(workTime + 1000);
+            pomTimer.Start();
+            Thread.Sleep(workTime + 10);
 
 			Assert.Equal(PomodoroTimer.PomodoroPhaseEnum.Break, 
-                         pom.PomodoroPhase);
+                         pomTimer.PomodoroPhase);
 		}
 
 		[Fact]
 		public void Phase_Switches_Break_To_Work()
 		{
-			var workTime = 2000;
-			var breakTime = 2000;
+			var workTime = 20;
+			var breakTime = 20;
 
-			var pom = new PomodoroTimer(workTime, breakTime);
-            pom.PomodoroPhase = PomodoroTimer.PomodoroPhaseEnum.Break;
+			var pomTimer = new PomodoroTimer(workTime, breakTime, _testInterval);
+            pomTimer.PomodoroPhase = PomodoroTimer.PomodoroPhaseEnum.Break;
 
-			pom.Start();
-			Thread.Sleep(breakTime + 1000);
+			pomTimer.Start();
+			Thread.Sleep(breakTime + 10);
+            pomTimer.Stop();
 
 			Assert.Equal(PomodoroTimer.PomodoroPhaseEnum.Work, 
-                         pom.PomodoroPhase);
+                         pomTimer.PomodoroPhase);
 		}
 
         [Fact]
         public void Timer_Counts_Down()
         {
-            var countdownTime = 2000;
+            var countdownTime = 20;
 
-            var pom = new PomodoroTimer(countdownTime, 0);
-            pom.Start();
+            var pomTimer = new PomodoroTimer(countdownTime, 0, _testInterval);
+            pomTimer.Start();
             Thread.Sleep(countdownTime);
-            pom.Stop();
+            pomTimer.Stop();
 
-            Assert.Equal(0, pom.PhaseRemainingTime);
+            Assert.Equal(0, pomTimer.PhaseRemainingTime);
    		}
 
 		[Fact]
 		public void Timer_Stops()
 		{
-			var countdownTime = 2000;
-            var timeRemaining = 1000;
+			var countdownTime = 20;
+            var timeRemaining = 10;
 
-            var pomTimer = new PomodoroTimer(countdownTime, 1000);
+            var pomTimer = new PomodoroTimer(countdownTime, 10, _testInterval);
             pomTimer.Start();
-            Thread.Sleep(1000);
+            Thread.Sleep(10);
             pomTimer.Stop();
-			Thread.Sleep(2000);
+			Thread.Sleep(20);
 
    			Assert.Equal(timeRemaining, pomTimer.PhaseRemainingTime);
 		}
@@ -86,7 +96,7 @@ namespace PomodoroTests
         [Fact]
         public void Event_OnTick_Fires()
         {
-			var pomTimer = new PomodoroTimer(20, 10);
+			var pomTimer = new PomodoroTimer(20, 10, _testInterval);
             pomTimer.TickHandler += pomodoro_Tick;
 
             pomTimer.Start();
@@ -99,11 +109,11 @@ namespace PomodoroTests
 		[Fact]
 		public void Event_OnPhaseChange_Fires()
 		{
-			var pomTimer = new PomodoroTimer(1000, 1000);
+			var pomTimer = new PomodoroTimer(10, 10, _testInterval);
             pomTimer.PhaseChangeHandler += pomodoro_PhaseChange;
 
 			pomTimer.Start();
-			Thread.Sleep(1000);
+			Thread.Sleep(10);
 			pomTimer.Stop();
 
 			Assert.Equal(_phaseHasChanged, true);

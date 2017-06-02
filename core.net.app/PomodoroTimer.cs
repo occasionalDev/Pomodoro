@@ -14,11 +14,12 @@ namespace PomodoroLib
 		public PomodoroPhaseEnum PomodoroPhase;
 
         private Timer _timer;
-        private const int _interval = 1000;
+        private int _interval;
 
         public int WorkTime { get; set; }
         public int BreakTime { get; set; }
         public int PhaseRemainingTime { get; set; }
+        public int Interval { get { return _interval; } }
 
         public event EventHandler TickHandler;
         public event EventHandler PhaseChangeHandler;
@@ -30,19 +31,27 @@ namespace PomodoroLib
         /// </summary>
         /// <param name="WorkTime">Work time in milliseconds</param>
         /// <param name="BreakTime">Break time in milliseconds</param>
+        /// <remarks>Interval defaults to 1000 milliseconds</remarks>
         public PomodoroTimer(int WorkTime, int BreakTime)
+            : this(WorkTime, BreakTime, 1000)
         {
-            PomodoroPhase = PomodoroPhaseEnum.Work;
-            this.PhaseRemainingTime = WorkTime;
 
-            var autoEvent = new AutoResetEvent(false);
+		}
 
-            this.WorkTime = WorkTime;
-            this.BreakTime = BreakTime;
 
-            _timer = new Timer(timerCallback, autoEvent, Timeout.Infinite, _interval);
+        public PomodoroTimer(int WorkTime, int BreakTime, int Interval)
+        {
+			PomodoroPhase = PomodoroPhaseEnum.Work;
+			this.PhaseRemainingTime = WorkTime;
+
+			var autoEvent = new AutoResetEvent(false);
+
+			this.WorkTime = WorkTime;
+			this.BreakTime = BreakTime;
+            _interval = Interval;
+
+			_timer = new Timer(timerCallback, autoEvent, Timeout.Infinite, _interval);
         }
-
 
         /// <summary>
         /// Timers the callback.
